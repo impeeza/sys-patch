@@ -1,5 +1,5 @@
 {
-    "name"  : "sys-patch",
+    "name"  : "游戏补丁",
     "tid"   : "420000000000000B",
     "requires_reboot": false
 }
