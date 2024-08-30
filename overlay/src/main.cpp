@@ -75,10 +75,10 @@ public:
         auto list = new tsl::elm::List();
 
         list->addItem(new tsl::elm::CategoryHeader("Options"));
-        list->addItem(config_patch_sysmmc.create_list_item("Patch sysMMC"));
-        list->addItem(config_patch_emummc.create_list_item("Patch emuMMC"));
-        list->addItem(config_logging.create_list_item("Logging"));
-        list->addItem(config_version_skip.create_list_item("Version skip"));
+        list->addItem(config_patch_sysmmc.create_list_item("正版系统游戏补丁"));
+        list->addItem(config_patch_emummc.create_list_item("虚拟系统游戏补丁"));
+        list->addItem(config_logging.create_list_item("日志记录"));
+        list->addItem(config_version_skip.create_list_item("版本跳过"));
 
         frame->setContent(list);
         return frame;
