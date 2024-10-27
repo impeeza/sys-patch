@@ -103,7 +103,7 @@ public:
         list->addItem(config_noacidsigchk2.create_list_item("noacidsigchk2"));
         list->addItem(config_noncasigchk_old.create_list_item("noncasigchk_old"));
         list->addItem(config_noncasigchk_new.create_list_item("noncasigchk_new"));
-        list->addItem(config_noncasigchk_new2.create_list_item("noncasigchk_new2"));
+        //list->addItem(config_noncasigchk_new2.create_list_item("noncasigchk_new2"));
         list->addItem(config_nocntchk.create_list_item("nocntchk"));
         list->addItem(config_nocntchk2.create_list_item("nocntchk2"));
 
@@ -129,7 +129,7 @@ public:
     ConfigEntry config_noacidsigchk2{"fs", "noacidsigchk2", true};
     ConfigEntry config_noncasigchk_old{"fs", "noncasigchk_old", true};
     ConfigEntry config_noncasigchk_new{"fs", "noncasigchk_new", true};
-    ConfigEntry config_noncasigchk_new2{"fs", "noncasigchk_new2", true};
+    //ConfigEntry config_noncasigchk_new2{"fs", "noncasigchk_new2", true};
     ConfigEntry config_nocntchk{"fs", "nocntchk", true};
     ConfigEntry config_nocntchk2{"fs", "nocntchk2", true};
     ConfigEntry config_noacidsigchk{"ldr", "noacidsigchk", true};
