@@ -2,24 +2,39 @@ name: Build jobs
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   build:
-    name: build
     runs-on: ubuntu-latest
-    container: ghcr.io/pgalonza/devkita64-atmosphere:latest
-    #or you can use a generic one
-    #container: devkitpro/devkita64:latest
+    container: devkitpro/devkita64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Build sys-patch
         run: |
-          make dist -j $(nproc)
-      - name: Upload artifacts
+          make -j $(nproc) dist
+          VERSION=$(grep 'export VERSION := ' Makefile | cut -c 19-)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sys-patch-artifacts
-          path: ./sys-patch.zip
+          name: sys-patch-${{ env.VERSION }}.zip
+          path: out/
+
+
+      - name: Fetch git cli and upload release
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4) && \
+          tar -xzf gh*.tar.gz && \
+          chmod +x gh*/bin/gh && \
+          cp gh*/bin/gh /bin/gh && \
+          rm gh*.tar.gz && \
+          rm -rf gh* && \
+          gh release create v${{ env.VERSION }} sys-patch.zip --title "Sys-patch version ${{ env.VERSION }}" --repo github.com/$GITHUB_REPOSITORY

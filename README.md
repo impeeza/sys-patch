@@ -1,6 +1,6 @@
 # sys-patch
 
-A script-like system module that patches **fs**, **es**, **ldr** and **nifm** on boot.
+A script-like system module that patches **fs**, **es**, **ldr**, **nifm** and **nim** on boot.
 
 ---
 
@@ -57,14 +57,10 @@ To activate the sys-module, reboot your switch, or, use [sysmodules overlay](htt
 
 Here's a quick run down of what's being patched:
 
-- **fs**
-- **es**
-- **ldr**
-- **nifm**
-
-**fs** and **es** need new patches after every new firmware version.
-**ldr** needs new patches after every new [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere/) release.
-**nifm** ctest patch allows the device to connect to a network without needing to make a connection to a server.
+- **fs** and **es** need new patches after every new firmware version.
+- **ldr** needs new patches after every new [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere/) release.
+- **nifm** ctest patch allows the device to connect to a network without needing to make a connection to a server
+- **nim** patches to the ssl function call within nim that queries "https://api.hac.%.ctest.srv.nintendo.net/v1/time", and crashes the console if console ssl certificate is not intact. This patch instead makes the console not crash.
 
 The patches are applied on boot. Once done, the sys-module stops running.
 The memory footprint *(16kib)* and the binary size *(~50kib)* are both very small.
