@@ -29,6 +29,8 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
+        include-hidden-files: true
+        overwrite: true
         name: sys-patch-${{ env.VERSION }}.zip
         path: sys-patch/out/
 
