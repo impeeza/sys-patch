@@ -99,12 +99,14 @@ public:
         auto list = new tsl::elm::List();
 
         list->addItem(new tsl::elm::CategoryHeader("FS - 0100000000000000"));
-        list->addItem(config_noacidsigchk1.create_list_item("noacidsigchk1"));
-        list->addItem(config_noacidsigchk2.create_list_item("noacidsigchk2"));
-        list->addItem(config_noncasigchk_old.create_list_item("noncasigchk_old"));
-        list->addItem(config_noncasigchk_new.create_list_item("noncasigchk_new"));
-        list->addItem(config_nocntchk.create_list_item("nocntchk"));
-        list->addItem(config_nocntchk2.create_list_item("nocntchk2"));
+        list->addItem(config_1_9A.create_list_item("1_9A"));
+        list->addItem(config_1_9B.create_list_item("1_9B"));
+        list->addItem(config_1_9C.create_list_item("1_9C"));
+        list->addItem(config_10_18A.create_list_item("10_18A"));
+        list->addItem(config_19A.create_list_item("19A"));
+        list->addItem(config_1_9D.create_list_item("1_9D"));
+        list->addItem(config_10_16D.create_list_item("10_16D"));
+        list->addItem(config_17_19D.create_list_item("17_19D"));
 
         list->addItem(new tsl::elm::CategoryHeader("LDR - 0100000000000001"));
         list->addItem(config_noacidsigchk.create_list_item("noacidsigchk"));
@@ -124,12 +126,14 @@ public:
         return frame;
     }
 
-    ConfigEntry config_noacidsigchk1{"fs", "noacidsigchk1", true};
-    ConfigEntry config_noacidsigchk2{"fs", "noacidsigchk2", true};
-    ConfigEntry config_noncasigchk_old{"fs", "noncasigchk_old", true};
-    ConfigEntry config_noncasigchk_new{"fs", "noncasigchk_new", true};
-    ConfigEntry config_nocntchk{"fs", "nocntchk", true};
-    ConfigEntry config_nocntchk2{"fs", "nocntchk2", true};
+    ConfigEntry config_1_9A{"fs", "1_9A", true};
+    ConfigEntry config_1_9B{"fs", "1_9B", true};
+    ConfigEntry config_1_9C{"fs", "1_9C", true};
+    ConfigEntry config_10_18A{"fs", "10_18A", true};
+    ConfigEntry config_19A{"fs", "19A", true};
+    ConfigEntry config_1_9D{"fs", "1_9D", true};
+    ConfigEntry config_10_16D{"fs", "10_16D", true};
+    ConfigEntry config_17_19D{"fs", "17_19D", true};;
     ConfigEntry config_noacidsigchk{"ldr", "noacidsigchk", true};
     ConfigEntry config_es1{"es", "es1", true};
     ConfigEntry config_es2{"es", "es2", true};
