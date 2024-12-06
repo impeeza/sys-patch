@@ -79,6 +79,7 @@ public:
         list->addItem(config_patch_emummc.create_list_item("Patch emuMMC"));
         list->addItem(config_logging.create_list_item("Logging"));
         list->addItem(config_version_skip.create_list_item("Version skip"));
+        list->addItem(config_clean_config.create_list_item("Clean config file"));
 
         frame->setContent(list);
         return frame;
@@ -88,6 +89,7 @@ public:
     ConfigEntry config_patch_emummc{"options", "patch_emummc", true};
     ConfigEntry config_logging{"options", "enable_logging", true};
     ConfigEntry config_version_skip{"options", "version_skip", true};
+    ConfigEntry config_clean_config{"options", "clean_config", true};
 };
 
 class GuiToggle final : public tsl::Gui {

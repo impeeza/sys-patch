@@ -16,6 +16,7 @@ patch_sysmmc=1   ; 1=(default) patch sysmmc, 0=don't patch sysmmc
 patch_emummc=1   ; 1=(default) patch emummc, 0=don't patch emummc
 enable_logging=1 ; 1=(default) output /config/sys-patch/log.ini 0=no log
 version_skip=1   ; 1=(default) skips out of date patterns, 0=search all patterns
+clean_config=1 ; 1=(default) clean the config file 0=don't clean the config file
 ```
 
 ---
