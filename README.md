@@ -43,7 +43,7 @@ The overlay can be used to change the config options and to see what patches are
 - Install [devkitpro](https://devkitpro.org/wiki/Getting_Started)
 - Run the following:
   ```sh
-  git clone --recurse-submodules https://github.com/ITotalJustice/sys-patch.git
+  git clone --recurse-submodules https://github.com/impeeza/sys-patch.git
   cd ./sys-patch
   make
   ```
