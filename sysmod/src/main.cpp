@@ -18,7 +18,15 @@ u32 AMS_VERSION{}; // set on startup
 u32 AMS_TARGET_VERSION{}; // set on startup
 u8 AMS_KEYGEN{}; // set on startup
 u64 AMS_HASH{}; // set on startup
+bool patch_sysmmc; // set on startup
+bool patch_emummc; // set on startup
+bool enable_logging; // set on startup
 bool VERSION_SKIP{}; // set on startup
+bool CLEAN_CONFIG{}; // set on startup
+
+constexpr auto ini_path = "/config/sys-patch/config.ini";
+constexpr auto log_path = "/config/sys-patch/log.ini";
+constexpr auto temp_path = "/config/sys-patch/temp.ini";
 
 struct DebugEventInfo {
     u32 event_type;
@@ -511,12 +519,12 @@ auto ini_load_or_write_default(const char* section, const char* key, long _defau
 
 auto patch_result_to_str(PatchResult result) -> const char* {
     switch (result) {
-        case PatchResult::NOT_FOUND: return "Unpatched";
-        case PatchResult::SKIPPED: return "Skipped";
-        case PatchResult::DISABLED: return "Disabled";
-        case PatchResult::PATCHED_FILE: return "Patched (file)";
-        case PatchResult::PATCHED_SYSPATCH: return "Patched (sys-patch)";
-        case PatchResult::FAILED_WRITE: return "Failed (svcWriteDebugProcessMemory)";
+        case PatchResult::NOT_FOUND: return "Ungepatched";
+        case PatchResult::SKIPPED: return "Uebersprungen";
+        case PatchResult::DISABLED: return "Deaktiviert";
+        case PatchResult::PATCHED_FILE: return "Gepatched (Datei)";
+        case PatchResult::PATCHED_SYSPATCH: return "Gepatched (sys-patch)";
+        case PatchResult::FAILED_WRITE: return "Fehlgeschlagen (svcWriteDebugProcessMemory)";
     }
 
     std::unreachable();
@@ -597,21 +605,208 @@ void keygen_to_str(char* s, u8 keygen) {
     num_2_str(s, keygen);
 }
 
+char* strdup(const char* str) {
+    size_t len = strlen(str) + 1;
+    char* copy = (char*)malloc(len);
+    if (copy != NULL) {
+strncpy(copy, str, len);
+    }
+    return copy;
+}
+
+void trim(char* str) {
+	if (str == NULL)
+		return;
+
+	char* start = str;
+	while (*start && isspace((unsigned char)*start))
+		++start;
+
+	size_t len = strlen(start);
+	char* end = start + len - 1;
+	while (end > start && isspace((unsigned char)*end))
+		--end;
+
+	*(end + 1) = '\0';
+
+	if (start != str)
+		memmove(str, start, len - (start - str) + 1);
+}
+
+int clean_config_file() {
+    ini_remove(temp_path);
+    NxFile file;
+    bool rc=ini_openread(ini_path, &file);
+    char line[128];
+    char *line_trim = {};
+    char *actual_section = {};
+if (!rc) {
+        return 1;
+    }
+    bool need_rewrite = false;
+    bool keep_section = false;
+    bool keep_config = false;
+    size_t buffer_length=sizeof(line);
+    size_t line_trim_alloc = buffer_length + 1;
+    bool first_line_init = false;
+    int count_buff_line_passed = 0;
+    int z = 0;
+    while (ini_read2(line, buffer_length, &file)) {
+        if (!first_line_init) {
+            line_trim = (char*) calloc(1, line_trim_alloc);
+            if (!line_trim) {
+                ini_close(&file);
+                return -1;
+            }
+            first_line_init = true;
+        }
+        strcat(line_trim, line);
+        if ((line_trim[strlen(line_trim) - 1] != '\r' && line_trim[strlen(line_trim) - 1] != '\n') && strlen(line_trim) > 0) {
+            z++;
+            if (z > count_buff_line_passed) {
+                line_trim_alloc += buffer_length;
+                line_trim = (char*) realloc(line_trim, line_trim_alloc);
+                if (!line_trim) {
+                if (actual_section) free(actual_section);
+                if (line_trim) free(line_trim);
+                ini_close(&file);
+                return -1;
+                }
+                count_buff_line_passed++;
+            }
+            continue;
+        }
+        z = 0;
+        trim(line_trim);
+        if (line_trim[0] == '\0' || line_trim[0] == ';' || line_trim[0] == '\n' || line_trim[0] == '\r') {
+            memset(line_trim, '\0', line_trim_alloc);
+            continue;
+        }
+        if (line_trim[0] == '[' && line_trim[strlen(line_trim) - 1] == ']') {
+            keep_section = false;
+            line_trim[strlen(line_trim) - 1] = '\0';
+            if (actual_section) {
+                free(actual_section);
+            }
+            actual_section = strdup(line_trim + 1);
+            if (strcmp(actual_section, "options") == 0) {
+                keep_section = true;
+                memset(line_trim, '\0', line_trim_alloc);
+                continue;
+            }
+            for (auto& patch : patches) {
+                if (strcmp(patch.name, actual_section) == 0) {
+                    keep_section = true;
+                    break;
+                }
+            }
+            if (!keep_section) {
+                need_rewrite = true;
+                break;
+            }
+        } else {
+            keep_config = false;
+            if (!keep_section) {
+                need_rewrite = true;
+                break;
+            }
+            char *pos = strchr(line_trim, '=');
+            if (pos != NULL) {
+                *pos = '\0';
+                trim(line_trim);
+                if ((strcmp(actual_section, "options") == 0) && (strcmp(line_trim, "patch_sysmmc") == 0 || strcmp(line_trim, "patch_emummc") == 0 || strcmp(line_trim, "enable_logging") == 0 || strcmp(line_trim, "version_skip") == 0 || strcmp(line_trim, "clean_config") == 0)) {
+                    memset(line_trim, '\0', line_trim_alloc);
+                    continue;
+                }
+                for (auto& patch : patches) {
+                    for (auto& p : patch.patterns) {
+                        if (strcmp(p.patch_name, line_trim) == 0) {
+                            keep_config = true;
+                            break;
+                        }
+                    }
+                    if (keep_config) {
+                        break;
+                    }
+                }
+                if (!keep_config) {
+                    need_rewrite = true;
+                    break;
+                }
+            }
+        }
+        memset(line_trim, '\0', line_trim_alloc);
+    }
+    ini_close(&file);
+    if (line_trim) {
+        free(line_trim);
+    }
+    if (actual_section) {
+        free(actual_section);
+    }
+
+    if (!need_rewrite) {
+        return 0;
+    }
+
+    bool user_val = ini_getbool("options", "patch_sysmmc", 1, ini_path);
+    if (ini_putl("options", "patch_sysmmc", user_val, temp_path) == 0) {
+        return -1;
+    }
+    user_val = ini_getbool("options", "patch_emummc", 1, ini_path);
+    if (ini_putl("options", "patch_emummc", user_val, temp_path) == 0) {
+        return -1;
+    }
+    user_val = ini_getbool("options", "enable_logging", 1, ini_path);
+    if (ini_putl("options", "enable_logging", user_val, temp_path) == 0) {
+        return -1;
+    }
+    user_val = ini_getbool("options", "version_skip", 1, ini_path);
+    if (ini_putl("options", "version_skip", user_val, temp_path) == 0) {
+        return -1;
+    }
+    user_val = ini_getbool("options", "clean_config", 1, ini_path);
+    if (ini_putl("options", "clean_config", user_val, temp_path) == 0) {
+        return -1;
+    }
+
+    for (auto& patch : patches) {
+        for (auto& p : patch.patterns) {
+            user_val = ini_getbool(patch.name, p.patch_name, p.enabled, ini_path);
+            if (ini_putl(patch.name, p.patch_name, user_val, temp_path) == 0) {
+                return -1;
+            }
+        }
+    }
+    ini_remove(ini_path);
+ini_rename(temp_path, ini_path);
+    return 1;
+}
+
 } // namespace
 
 int main(int argc, char* argv[]) {
-    constexpr auto ini_path = "/config/sys-patch/config.ini";
-    constexpr auto log_path = "/config/sys-patch/log.ini";
-
     create_dir("/config/");
     create_dir("/config/sys-patch/");
     ini_remove(log_path);
 
     // load options
-    const auto patch_sysmmc = ini_load_or_write_default("options", "patch_sysmmc", 1, ini_path);
-    const auto patch_emummc = ini_load_or_write_default("options", "patch_emummc", 1, ini_path);
-    const auto enable_logging = ini_load_or_write_default("options", "enable_logging", 1, ini_path);
+    patch_sysmmc = ini_load_or_write_default("options", "patch_sysmmc", 1, ini_path);
+    patch_emummc = ini_load_or_write_default("options", "patch_emummc", 1, ini_path);
+    enable_logging = ini_load_or_write_default("options", "enable_logging", 1, ini_path);
     VERSION_SKIP = ini_load_or_write_default("options", "version_skip", 1, ini_path);
+    CLEAN_CONFIG = ini_load_or_write_default("options", "clean_config", 1, ini_path);
+
+    if (CLEAN_CONFIG) {
+        int rc = clean_config_file();
+        if (rc == 0) {
+            ini_puts("clean_config_file", "result", "Nicht noetig", log_path);
+        } else if (rc == 1) {
+            ini_puts("clean_config_file", "result", "Bereinigt", log_path);
+        } else {
+            ini_puts("clean_config_file", "result", "Fehler beim bereinigen", log_path);
+        }
+    }
 
     // load patch toggles
     for (auto& patch : patches) {

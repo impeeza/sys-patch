@@ -3,7 +3,7 @@
  *  These routines are in part based on the article "Multiplatform .INI Files"
  *  by Joseph J. Graf in the March 1994 issue of Dr. Dobb's Journal.
  *
- *  Copyright (c) CompuPhase, 2008-2021
+ *  Copyright (c) CompuPhase, 2008-2024
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  *  use this file except in compliance with the License. You may obtain a copy
@@ -949,4 +949,18 @@ int ini_putf(const TCHAR *Section, const TCHAR *Key, INI_REAL Value, const TCHAR
   return ini_puts(Section, Key, LocalBuffer, Filename);
 }
 #endif /* INI_REAL */
+
+/** ini_putbool()
+ * \param Section     the name of the section to write the value in
+ * \param Key         the name of the entry to write
+ * \param Value       the value to write; it should be 0 or 1.
+ * \param Filename    the name and full path of the .ini file to write to
+ *
+ * \return            1 if successful, otherwise 0
+ */
+int ini_putbool(const TCHAR *Section, const TCHAR *Key, int Value, const TCHAR *Filename)
+{
+  return ini_puts(Section, Key, Value ? __T("true") : __T("false"), Filename);
+}
+
 #endif /* !INI_READONLY */

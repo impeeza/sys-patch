@@ -75,6 +75,35 @@ bool ini_read(char* buffer, u64 size, struct NxFile* nxfile) {
     return true;
 }
 
+bool ini_read2(char* buffer, u64 size, struct NxFile* nxfile) {
+    u64 bytes_read = 0;
+
+    if (R_FAILED(fsFileRead(&nxfile->file, nxfile->offset, buffer, size - 1, FsReadOption_None, &bytes_read))) {
+        return false;
+    }
+
+    if (bytes_read == 0) {
+        return false;
+    }
+
+    buffer[bytes_read] = '\0';
+
+    char* eol = strchr(buffer, '\n');
+    if (!eol) {
+        eol = strchr(buffer, '\r');
+    }
+
+    if (eol) {
+        *eol = '\0';
+        nxfile->offset += (eol - buffer + 1);
+    } else {
+        nxfile->offset += bytes_read;
+        return true;
+    }
+
+    return true;
+}
+
 bool ini_write(const char* buffer, struct NxFile* nxfile) {
     const size_t size = strlen(buffer);
     if (R_FAILED(fsFileWrite(&nxfile->file, nxfile->offset, buffer, size, FsWriteOption_None))) {

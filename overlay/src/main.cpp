@@ -74,11 +74,12 @@ public:
         auto frame = new tsl::elm::OverlayFrame("sys-patch", VERSION_WITH_HASH);
         auto list = new tsl::elm::List();
 
-        list->addItem(new tsl::elm::CategoryHeader("Options"));
-        list->addItem(config_patch_sysmmc.create_list_item("Patch sysMMC"));
-        list->addItem(config_patch_emummc.create_list_item("Patch emuMMC"));
-        list->addItem(config_logging.create_list_item("Logging"));
-        list->addItem(config_version_skip.create_list_item("Version skip"));
+        list->addItem(new tsl::elm::CategoryHeader("Optionen"));
+        list->addItem(config_patch_sysmmc.create_list_item("sysMMC patchen"));
+        list->addItem(config_patch_emummc.create_list_item("emuMMC patchen"));
+        list->addItem(config_logging.create_list_item("Protokollieren"));
+        list->addItem(config_version_skip.create_list_item("Version ueberspringen"));
+        list->addItem(config_clean_config.create_list_item("Konfiguration reinigen"));
 
         frame->setContent(list);
         return frame;
@@ -88,6 +89,7 @@ public:
     ConfigEntry config_patch_emummc{"options", "patch_emummc", true};
     ConfigEntry config_logging{"options", "enable_logging", true};
     ConfigEntry config_version_skip{"options", "version_skip", true};
+    ConfigEntry config_clean_config{"options", "clean_config", true};
 };
 
 class GuiToggle final : public tsl::Gui {
@@ -120,7 +122,7 @@ public:
         list->addItem(new tsl::elm::CategoryHeader("NIM - 0100000000000025"));
         list->addItem(config_nim.create_list_item("nim"));
 
-        list->addItem(new tsl::elm::CategoryHeader("Disable CA Verification - apply all"));
+        list->addItem(new tsl::elm::CategoryHeader("Deaktiviere CA Verifikation - Bei allen"));
         list->addItem(config_ssl1.create_list_item("disablecaverification1"));
         list->addItem(config_ssl2.create_list_item("disablecaverification2"));
         list->addItem(config_ssl3.create_list_item("disablecaverification3"));
@@ -164,13 +166,13 @@ public:
                 auto user = (CallbackUser*)UserData;
                 std::string_view value{Value};
 
-                if (value == "Skipped") {
+                if (value == "Uebersprungen") {
                     return 1;
                 }
 
                 if (user->last_section != Section) {
                     user->last_section = Section;
-                    user->list->addItem(new tsl::elm::CategoryHeader("Log: " + user->last_section));
+                    user->list->addItem(new tsl::elm::CategoryHeader("Protokoll: " + user->last_section));
                 }
 
                 #define F(x) ((x) >> 4) // 8bit -> 4bit
@@ -179,13 +181,13 @@ public:
                 constexpr tsl::Color colour_unpatched{F(250), F(90), F(58), F(255)};
                 #undef F
 
-                if (value.starts_with("Patched")) {
+                if (value.starts_with("Gepatched")) {
                     if (value.ends_with("(sys-patch)")) {
-                        user->list->addItem(new tsl::elm::ListItem(Key, "Patched", colour_syspatch));
+                        user->list->addItem(new tsl::elm::ListItem(Key, "Gepatched", colour_syspatch));
                     } else {
-                        user->list->addItem(new tsl::elm::ListItem(Key, "Patched", colour_file));
+                        user->list->addItem(new tsl::elm::ListItem(Key, "Gepatched", colour_file));
                     }
-                } else if (value.starts_with("Unpatched") || value.starts_with("Disabled")) {
+                } else if (value.starts_with("Ungepatched") || value.starts_with("Deaktiviert")) {
                     user->list->addItem(new tsl::elm::ListItem(Key, Value, colour_unpatched));
                 } else if (user->last_section == "stats") {
                     user->list->addItem(new tsl::elm::ListItem(Key, Value, tsl::style::color::ColorDescription));
@@ -196,7 +198,7 @@ public:
                 return 1;
             }, &callback_userdata, LOG_PATH);
         } else {
-            list->addItem(new tsl::elm::ListItem("No log found!"));
+            list->addItem(new tsl::elm::ListItem("Kein Protokoll gefunden!"));
         }
 
         frame->setContent(list);
@@ -212,9 +214,9 @@ public:
         auto frame = new tsl::elm::OverlayFrame("sys-patch", VERSION_WITH_HASH);
         auto list = new tsl::elm::List();
 
-        auto options = new tsl::elm::ListItem("Options");
-        auto toggle = new tsl::elm::ListItem("Toggle patches");
-        auto log = new tsl::elm::ListItem("Log");
+        auto options = new tsl::elm::ListItem("Optionen");
+        auto toggle = new tsl::elm::ListItem("Patches umschalten");
+        auto log = new tsl::elm::ListItem("Protokoll");
 
         options->setClickListener([](u64 keys) -> bool {
             if (keys & HidNpadButton_A) {
@@ -240,7 +242,7 @@ public:
             return false;
         });
 
-        list->addItem(new tsl::elm::CategoryHeader("Menu"));
+        list->addItem(new tsl::elm::CategoryHeader("Menue"));
         list->addItem(options);
         list->addItem(toggle);
         list->addItem(log);
