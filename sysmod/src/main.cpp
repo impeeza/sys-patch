@@ -876,17 +876,17 @@ int main(int argc, char* argv[]) {
         // defined in the Makefile
         #define DATE (DATE_DAY "." DATE_MONTH "." DATE_YEAR " " DATE_HOUR ":" DATE_MIN ":" DATE_SEC)
 
-        ini_puts("stats", "version", VERSION_WITH_HASH, log_path);
-        ini_puts("stats", "build_date", DATE, log_path);
-        ini_puts("stats", "fw_version", fw_version, log_path);
-        ini_puts("stats", "ams_version", ams_version, log_path);
-        ini_puts("stats", "ams_target_version", ams_target_version, log_path);
-        ini_puts("stats", "ams_keygen", ams_keygen, log_path);
-        ini_puts("stats", "ams_hash", ams_hash, log_path);
-        ini_putl("stats", "is_emummc", emummc, log_path);
-        ini_putl("stats", "heap_size", INNER_HEAP_SIZE, log_path);
-        ini_putl("stats", "buffer_size", READ_BUFFER_SIZE, log_path);
-        ini_puts("stats", "patch_time", patch_time, log_path);
+        ini_puts("stats", "Version", VERSION_WITH_HASH, log_path);
+        ini_puts("stats", "Erstellungsdatum", DATE, log_path);
+        ini_puts("stats", "Firmwareversion", fw_version, log_path);
+        ini_puts("stats", "SBOS Version", ams_version, log_path);
+        ini_puts("stats", "SBOS Zielversion", ams_target_version, log_path);
+        ini_puts("stats", "SBOS Keygen", ams_keygen, log_path);
+        ini_puts("stats", "SBOS Hash", ams_hash, log_path);
+        ini_putl("stats", "ist emuMMC", emummc, log_path);
+        ini_putl("stats", "Heapgroesse", INNER_HEAP_SIZE, log_path);
+        ini_putl("stats", "Puffergroesse", READ_BUFFER_SIZE, log_path);
+        ini_puts("stats", "Patchzeit", patch_time, log_path);
     }
 
     // note: sysmod exits here.
