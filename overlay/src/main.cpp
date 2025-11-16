@@ -118,6 +118,7 @@ public:
         list->addItem(new tsl::elm::CategoryHeader("NIFM - 010000000000000F"));
         list->addItem(config_ctest.create_list_item("ctest"));
         list->addItem(config_ctest2.create_list_item("ctest2"));
+        list->addItem(config_ctest3.create_list_item("ctest3"));
 
         list->addItem(new tsl::elm::CategoryHeader("NIM - 0100000000000025"));
         list->addItem(config_nim_old.create_list_item("nim_old"));
@@ -145,6 +146,7 @@ public:
     ConfigEntry config_es3{"es", "es3", true};
     ConfigEntry config_ctest{"nifm", "ctest", true};
     ConfigEntry config_ctest2{"nifm", "ctest2", true};
+    ConfigEntry config_ctest3{"nifm", "ctest3", true};
     ConfigEntry config_nim_old{"nim_old", "nim_old", true};
     ConfigEntry config_nim_new{"nim_new", "nim_new", true};
     ConfigEntry config_ssl1{"ssl", "disablecaverification1", false};
