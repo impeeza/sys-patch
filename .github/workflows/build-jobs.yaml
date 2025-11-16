@@ -20,6 +20,7 @@ jobs:
 
     - name: Build sys-patch
       run: |
+        dkp-pacman -Syu --noconfirm && \
         make -C sys-patch -j$(nproc) dist && \
         VERSION=$(grep 'export VERSION := ' sys-patch/Makefile | cut -c 19-)
         TAGVERSION=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | grep "tag_name" | head -1 | cut -d '"' -f 4)
