@@ -274,7 +274,7 @@ constinit Patterns fs_patterns[] = {
 };
 
 constinit Patterns ldr_patterns[] = {
-    { "noacidsigchk", "17..009401C0BE121F00", 9, 2, cmp_cond, cmp_patch, cmp_applied, true, FW_VER_ANY }, // 1F00016B - cmp w0, w1 patched to 1F00006B - cmp w0, w0
+    { "noacidsigchk", "009401C0BE121F00", 6, 2, cmp_cond, cmp_patch, cmp_applied, true, FW_VER_ANY }, // 1F00016B - cmp w0, w1 patched to 1F00006B - cmp w0, w0
 };
 
 constinit Patterns es_patterns[] = {
