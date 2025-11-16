@@ -194,6 +194,10 @@ constexpr auto b_cond(u32 inst) -> bool {
     return type == 0x14 || type == 0x17;
 }
 
+constexpr auto stp_cond(u32 inst) -> bool {
+    return (inst >> 24) == 0xA9; // stp x29, x30, [sp, #-0x30]!
+}
+
 // to view patches, use https://armconverter.com/?lock=arm64
 constexpr PatchData ret0_patch_data{ "0xE0031F2A" };
 constexpr PatchData ret1_patch_data{ "0x10000014" };
@@ -285,8 +289,10 @@ constinit Patterns es_patterns[] = {
 
 constinit Patterns nifm_patterns[] = {
     { "ctest", "....................F40300AA....F30314AAE00314AA9F0201397F8E04F8", 16, -16, ctest_cond, ctest_patch, ctest_applied, true, FW_VER_ANY, MAKEHOSVERSION(18,1,0) }, // 1.0.0 - 18.1.0
-    { "ctest2", "14...........91...........97...............14", 37, 4, b_cond, ctest_patch, ctest_applied, true, MAKEHOSVERSION(19,0,0), FW_VER_ANY }, //19.0.0 - 20.0.1+
+    { "ctest2", "14...........91...........97...............14", 41, 0, stp_cond, ctest_patch, ctest_applied, true, MAKEHOSVERSION(19,0,0), MAKEHOSVERSION(20,5,0) }, //19.0.0 - 20.5.0
+    { "ctest3", "14...........91...........97...............14", 49, 0, stp_cond, ctest_patch, ctest_applied, true, MAKEHOSVERSION(21,0,0), FW_VER_ANY }, //21.0.0
 };
+
 
 constinit Patterns nim_patterns[] = {
     { "nim_old", "0x.0F00351F2003D5", 8, 0, adr_cond, mov2_patch, mov2_applied, true, MAKEHOSVERSION(17,0,0), MAKEHOSVERSION(20,5,0) },
