@@ -110,6 +110,9 @@ public:
         list->addItem(new tsl::elm::CategoryHeader("LDR - 0100000000000001"));
         list->addItem(config_noacidsigchk.create_list_item("noacidsigchk"));
 
+        list->addItem(new tsl::elm::CategoryHeader("ERPT - 010000000000002B"));
+        list->addItem(config_no_erpt.create_list_item("no_erpt"));
+
         list->addItem(new tsl::elm::CategoryHeader("ES - 0100000000000033"));
         list->addItem(config_es1.create_list_item("es1"));
         list->addItem(config_es2.create_list_item("es2"));
@@ -141,6 +144,7 @@ public:
     ConfigEntry config_nocntchk{"fs", "nocntchk", true};
     ConfigEntry config_nocntchk2{"fs", "nocntchk2", true};
     ConfigEntry config_noacidsigchk{"ldr", "noacidsigchk", true};
+    ConfigEntry config_no_erpt{"erpt", "no_erpt", false};
     ConfigEntry config_es1{"es", "es1", true};
     ConfigEntry config_es2{"es", "es2", true};
     ConfigEntry config_es3{"es", "es3", true};
