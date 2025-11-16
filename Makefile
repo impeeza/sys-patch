@@ -46,6 +46,7 @@ $(TARGETS):
 
 clean:
 	@rm -rf out
+	@rm -f sys-patch.zip
 	@for i in $(TARGETS); do $(MAKE) -C $$i clean || exit 1; done;
 
 dist: all

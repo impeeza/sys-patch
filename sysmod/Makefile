@@ -180,14 +180,14 @@ else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif
 	@rm -rf out/
-	@rm -f sys-patch.zip
+	@rm -f sys-patch-sysmodule.zip
 
 #---------------------------------------------------------------------------------
 dist: all
 	@echo making dist ...
 
-	@rm -f sys-patch-no-overlay.zip
-	@cd out; zip -r ../sys-patch-no-overlay.zip ./*; cd ../
+	@rm -f sys-patch-sysmodule.zip
+	@cd out; zip -r ../sys-patch-sysmodule.zip ./*; cd ../
 #---------------------------------------------------------------------------------
 else
 .PHONY:	all
