@@ -19,9 +19,9 @@ jobs:
         submodules: recursive
 
     - name: deps - libnx
-        run: |
-            git clone https://github.com/switchbrew/libnx.git /tmp/libnx
-            make -C /tmp/libnx install -j4
+      run: |
+        git clone https://github.com/switchbrew/libnx.git /tmp/libnx
+        make -C /tmp/libnx install -j4
 
     - name: Build sys-patch
       run: |
