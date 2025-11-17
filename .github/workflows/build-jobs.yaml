@@ -18,6 +18,11 @@ jobs:
         path: sys-patch
         submodules: recursive
 
+    - name: deps - libnx
+        run: |
+            git clone https://github.com/switchbrew/libnx.git /tmp/libnx
+            make -C /tmp/libnx install -j4
+
     - name: Build sys-patch
       run: |
         make -C sys-patch -j$(nproc) dist && \
