@@ -201,6 +201,7 @@ constexpr auto stp_cond(u32 inst) -> bool {
 // to view patches, use https://armconverter.com/?lock=arm64
 constexpr PatchData ret0_patch_data{ "0xE0031F2A" };
 constexpr PatchData ret1_patch_data{ "0x10000014" };
+constexpr PatchData erpt_patch_data{ "0xE0031F2AC0035FD6" };
 constexpr PatchData nop_patch_data{ "0x1F2003D5" };
 //mov x0, xzr
 constexpr PatchData mov0_patch_data{ "0xE0031FAA" };
@@ -213,6 +214,7 @@ constexpr PatchData ctest_patch_data{ "0x00309AD2001EA1F2610100D4E0031FAAC0035FD
 
 constexpr auto ret0_patch(u32 inst) -> PatchData { return ret0_patch_data; }
 constexpr auto ret1_patch(u32 inst) -> PatchData { return ret1_patch_data; }
+constexpr auto erpt_patch(u32 inst) -> PatchData { return erpt_patch_data; }
 constexpr auto nop_patch(u32 inst) -> PatchData { return nop_patch_data; }
 constexpr auto mov0_patch(u32 inst) -> PatchData { return mov0_patch_data; }
 constexpr auto mov2_patch(u32 inst) -> PatchData { return mov2_patch_data; }
@@ -241,6 +243,10 @@ constexpr auto nop_applied(const u8* data, u32 inst) -> bool {
 
 constexpr auto cmp_applied(const u8* data, u32 inst) -> bool {
     return cmp_patch(inst).cmp(data);
+}
+
+constexpr auto erpt_applied(const u8* data, u32 inst) -> bool {
+    return erpt_patch(inst).cmp(data);
 }
 
 constexpr auto b_applied(const u8* data, u32 inst) -> bool {
@@ -281,11 +287,15 @@ constinit Patterns ldr_patterns[] = {
     { "noacidsigchk", "009401C0BE121F00", 6, 2, cmp_cond, cmp_patch, cmp_applied, true, FW_VER_ANY }, // 1F00016B - cmp w0, w1 patched to 1F00006B - cmp w0, w0
 };
 
+constinit Patterns erpt_patterns[] = {
+    { "no_erpt", "0xFD7B02A9FD830091F76305A9", -4, 0, stp_cond, erpt_patch, erpt_applied, false },
+};
+
 constinit Patterns es_patterns[] = {
     { "es1", "0x..00.....e0.0091..0094..4092...d1", 16, 0, and_cond, mov0_patch, mov0_applied, true, FW_VER_ANY, MAKEHOSVERSION(1,0,0) },
     { "es2", "0x..00.....e0.0091..0094..4092...a9", 16, 0, and_cond, mov0_patch, mov0_applied, true, MAKEHOSVERSION(2,0,0), MAKEHOSVERSION(8,1,1) },
     { "es3", "0x..00...0094a0..d1..ff97.......a9", 16, 0, mov2_cond, mov0_patch, mov0_applied, true, MAKEHOSVERSION(9,0,0), MAKEHOSVERSION(20,5,0) }, //9.0.0 - 20.5.0
-	{ "es4", "0x..00....97a0..d1...97e003132a...a9", 16, 0, mov2_cond, mov0_patch, mov0_applied, true, MAKEHOSVERSION(21,0,0), FW_VER_ANY }, //21.0.0+
+    { "es4", "0x..00....97a0..d1...97e003132a...a9", 16, 0, mov2_cond, mov0_patch, mov0_applied, true, MAKEHOSVERSION(21,0,0), FW_VER_ANY }, //21.0.0+
 };
 
 constinit Patterns nifm_patterns[] = {
@@ -293,7 +303,6 @@ constinit Patterns nifm_patterns[] = {
     { "ctest2", "14...........91...........97...............14", 41, 0, stp_cond, ctest_patch, ctest_applied, true, MAKEHOSVERSION(19,0,0), MAKEHOSVERSION(20,5,0) }, //19.0.0 - 20.5.0
     { "ctest3", "14...........91...........97...............14", 49, 0, stp_cond, ctest_patch, ctest_applied, true, MAKEHOSVERSION(21,0,0), FW_VER_ANY }, //21.0.0
 };
-
 
 constinit Patterns nim_patterns[] = {
     { "nim_old", "0x.0F00351F2003D5", 8, 0, adr_cond, mov2_patch, mov2_applied, true, MAKEHOSVERSION(17,0,0), MAKEHOSVERSION(20,5,0) },
@@ -312,6 +321,8 @@ constinit PatchEntry patches[] = {
     { "fs", 0x0100000000000000, fs_patterns },
     // ldr needs to be patched in fw 10+
     { "ldr", 0x0100000000000001, ldr_patterns, MAKEHOSVERSION(10,0,0) },
+    // erpt no write patch
+    { "erpt", 0x010000000000002B, erpt_patterns, MAKEHOSVERSION(10,0,0) },
     // es was added in fw 2
     { "es", 0x0100000000000033, es_patterns, MAKEHOSVERSION(2,0,0) },
     { "nifm", 0x010000000000000F, nifm_patterns },
