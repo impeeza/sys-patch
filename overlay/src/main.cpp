@@ -113,8 +113,6 @@ public:
         list->addItem(new tsl::elm::CategoryHeader("ERPT - 010000000000002B"));
         list->addItem(config_no_erpt.create_list_item("no_erpt"));
 
-        list->addItem(config_no_erpt.create_list_item("no_erpt"));
-
         list->addItem(new tsl::elm::CategoryHeader("ES - 0100000000000033"));
         list->addItem(config_es1.create_list_item("es1"));
         list->addItem(config_es2.create_list_item("es2"));
