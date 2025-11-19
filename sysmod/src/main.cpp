@@ -126,6 +126,10 @@ struct PatchEntry {
     const u32 max_fw_ver{FW_VER_ANY}; // set to FW_VER_ANY to ignore
 };
 
+constexpr auto sub_cond(u32 inst) -> bool {
+    const auto type = inst >> 24;
+    return type == 0xD1; // sub sp, sp, #0x150
+}
 
 constexpr auto cmp_cond(u32 inst) -> bool {
     const auto type = inst >> 24;
@@ -288,7 +292,7 @@ constinit Patterns ldr_patterns[] = {
 };
 
 constinit Patterns erpt_patterns[] = {
-    { "no_erpt", "0xFD7B02A9FD830091F76305A9", -4, 0, stp_cond, erpt_patch, erpt_applied, false },
+    { "no_erpt", "0x...D1FD7B02A9FD830091F76305A9", 0, 0, sub_cond, erpt_patch, erpt_applied, false }, // FF4305D1 - sub sp, sp, #0x150 patched to E0031F2AC0035FD6 - mov w0, wzr, ret 
 };
 
 constinit Patterns es_patterns[] = {
