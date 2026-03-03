@@ -11,6 +11,7 @@ firmware
 *.nacp
 *.ovl
 *.nca
+*.lst
 out
 ignoreme
 .vscode/settings.json
