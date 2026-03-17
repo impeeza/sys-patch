@@ -101,14 +101,14 @@ public:
         list->addItem(new tsl::elm::CategoryHeader("FS - 0100000000000000"));
         list->addItem(config_noacidsigchk1.create_list_item("noacidsigchk_1.0.0-9.2.0"));
         list->addItem(config_noacidsigchk2.create_list_item("noacidsigchk_1.0.0-9.2.0"));
-        list->addItem(config_noncasigchk1.create_list_item("noncasigchk_10.0.0-16.1.0"));
-        list->addItem(config_noncasigchk2.create_list_item("noncasigchk_17.0.0+"));
-        list->addItem(config_nocntchk1.create_list_item("nocntchk_10.0.0-18.1.0"));
-        list->addItem(config_nocntchk2.create_list_item("nocntchk_19.0.0-20.5.0"));
-        list->addItem(config_nocntchk3.create_list_item("nocntchk_21.0.0+"));
+        list->addItem(config_noncasigchk1.create_list_item("noncasigchk_1.0.0-3.0.2"));
+        list->addItem(config_noncasigchk2.create_list_item("noncasigchk_4.0.0-16.1.0"));
+        list->addItem(config_noncasigchk3.create_list_item("noncasigchk_17.0.0+"));
+        list->addItem(config_nocntchk1.create_list_item("nocntchk_1.0.0-18.1.0"));
+        list->addItem(config_nocntchk2.create_list_item("nocntchk_19.0.0+"));
 
         list->addItem(new tsl::elm::CategoryHeader("LDR - 0100000000000001"));
-        list->addItem(config_noacidsigchk3.create_list_item("noacidsigchk_10.0.0+"));
+        list->addItem(config_noacidsigchk4.create_list_item("noacidsigchk_10.0.0+"));
 
         list->addItem(new tsl::elm::CategoryHeader("ERPT - 010000000000002B"));
         list->addItem(config_no_erpt.create_list_item("no_erpt"));
@@ -117,7 +117,8 @@ public:
         list->addItem(config_es1.create_list_item("es_1.0.0-8.1.1"));
         list->addItem(config_es2.create_list_item("es_9.0.0-11.0.1"));
         list->addItem(config_es3.create_list_item("es_12.0.0-18.1.0"));
-        list->addItem(config_es4.create_list_item("es_19.0.0+"));
+        list->addItem(config_es4.create_list_item("es_19.0.0-21.2.0"));
+        list->addItem(config_es5.create_list_item("es_22.0.0+"));
 
         list->addItem(new tsl::elm::CategoryHeader("OLSC - 010000000000003E"));
         list->addItem(config_olsc1.create_list_item("olsc_6.0.0-14.1.2"));
@@ -132,8 +133,9 @@ public:
         list->addItem(config_nim1.create_list_item("blankcal0crashfix_17.0.0+"));
         list->addItem(config_nim_fw1.create_list_item("blockfirmwareupdates_1.0.0-5.1.0"));
         list->addItem(config_nim_fw2.create_list_item("blockfirmwareupdates_6.0.0-6.2.0"));
-        list->addItem(config_nim_fw3.create_list_item("blockfirmwareupdates_7.0.0-11.0.1"));
-        list->addItem(config_nim_fw4.create_list_item("blockfirmwareupdates_12.0.0+"));
+		list->addItem(config_nim_fw3.create_list_item("blockfirmwareupdates_7.0.0-10.2.0"));
+        list->addItem(config_nim_fw4.create_list_item("blockfirmwareupdates_11.0.0-11.0.1"));
+        list->addItem(config_nim_fw5.create_list_item("blockfirmwareupdates_12.0.0+"));
 
         frame->setContent(list);
         return frame;
@@ -141,17 +143,18 @@ public:
 
     ConfigEntry config_noacidsigchk1{"fs", "noacidsigchk_1.0.0-9.2.0", true};
     ConfigEntry config_noacidsigchk2{"fs", "noacidsigchk_1.0.0-9.2.0", true};
-    ConfigEntry config_noncasigchk1{"fs", "noncasigchk_10.0.0-16.1.0", true};
-    ConfigEntry config_noncasigchk2{"fs", "noncasigchk_17.0.0+", true};
-    ConfigEntry config_nocntchk1{"fs", "nocntchk_10.0.0-18.1.0", true};
-    ConfigEntry config_nocntchk2{"fs", "nocntchk_19.0.0-20.5.0", true};
-    ConfigEntry config_nocntchk3{"fs", "nocntchk_21.0.0+", true};
-    ConfigEntry config_noacidsigchk3{"ldr", "noacidsigchk_10.0.0+", true};
+    ConfigEntry config_noncasigchk1{"fs", "noncasigchk_1.0.0-3.0.2", true};
+    ConfigEntry config_noncasigchk2{"fs", "noncasigchk_4.0.0-16.1.0", true};
+    ConfigEntry config_noncasigchk3{"fs", "noncasigchk_17.0.0+", true};
+    ConfigEntry config_nocntchk1{"fs", "nocntchk_1.0.0-18.1.0", true};
+    ConfigEntry config_nocntchk2{"fs", "nocntchk_19.0.0+", true};
+    ConfigEntry config_noacidsigchk4{"ldr", "noacidsigchk_10.0.0+", true};
     ConfigEntry config_no_erpt{"erpt", "no_erpt", true};
     ConfigEntry config_es1{"es", "es_1.0.0-8.1.1", true};
     ConfigEntry config_es2{"es", "es_9.0.0-11.0.1", true};
     ConfigEntry config_es3{"es", "es_12.0.0-18.1.0", true};
-    ConfigEntry config_es4{"es", "es_19.0.0+", true};
+    ConfigEntry config_es4{"es", "es_19.0.0-21.2.0", true};
+    ConfigEntry config_es5{"es", "es_22.0.0+", true};
     ConfigEntry config_olsc1{"olsc", "olsc_6.0.0-14.1.2", true};
     ConfigEntry config_olsc2{"olsc", "olsc_15.0.0-18.1.0", true};
     ConfigEntry config_olsc3{"olsc", "olsc_19.0.0+", true};
@@ -160,8 +163,9 @@ public:
     ConfigEntry config_nim1{"nim", "blankcal0crashfix_17.0.0+", true};
     ConfigEntry config_nim_fw1{"nim", "blockfirmwareupdates_1.0.0-5.1.0", true};
     ConfigEntry config_nim_fw2{"nim", "blockfirmwareupdates_6.0.0-6.2.0", true};
-    ConfigEntry config_nim_fw3{"nim", "blockfirmwareupdates_7.0.0-11.0.1", true};
-    ConfigEntry config_nim_fw4{"nim", "blockfirmwareupdates_12.0.0+", true};
+    ConfigEntry config_nim_fw3{"nim", "blockfirmwareupdates_7.0.0-10.2.0", true};
+    ConfigEntry config_nim_fw4{"nim", "blockfirmwareupdates_11.0.0-11.0.1", true};
+    ConfigEntry config_nim_fw5{"nim", "blockfirmwareupdates_12.0.0+", true};
 };
 
 class GuiLog final : public tsl::Gui {
@@ -198,17 +202,21 @@ public:
                 #undef F
 
                 if (value.starts_with("Patched")) {
-                    if (value.ends_with("(sys-patch)")) {
-                        user->list->addItem(new tsl::elm::ListItem(Key, "Patched", colour_syspatch));
-                    } else {
-                        user->list->addItem(new tsl::elm::ListItem(Key, "Patched", colour_file));
-                    }
+                    auto *item = new tsl::elm::ListItem(Key);
+                    item->setValue("Patched", true);
+                    user->list->addItem(item);
                 } else if (value.starts_with("Unpatched") || value.starts_with("Disabled")) {
-                    user->list->addItem(new tsl::elm::ListItem(Key, Value, colour_unpatched));
+                    auto *item = new tsl::elm::ListItem(Key);
+                    item->setValue(Value, true);
+                    user->list->addItem(item);
                 } else if (user->last_section == "stats") {
-                    user->list->addItem(new tsl::elm::ListItem(Key, Value, tsl::style::color::ColorDescription));
+                    auto *item = new tsl::elm::ListItem(Key);
+                    item->setValue(Value, true);
+                    user->list->addItem(item);
                 } else {
-                    user->list->addItem(new tsl::elm::ListItem(Key, Value, tsl::style::color::ColorText));
+                    auto *item = new tsl::elm::ListItem(Key);
+                    item->setValue(Value, true);
+                    user->list->addItem(item);
                 }
 
                 return 1;

@@ -1,4 +1,3 @@
 [submodule "overlay/libtesla"]
 	path = overlay/libtesla
 	url = https://github.com/WerWolv/libtesla
-	branch = master

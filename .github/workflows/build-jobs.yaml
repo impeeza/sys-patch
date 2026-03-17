@@ -20,24 +20,34 @@ jobs:
 
     - name: Build sys-patch
       run: |
+
+        LIBNX_VER=$(dkp-pacman -Q libnx | cut -d' ' -f2 | cut -d- -f1)
+        echo "Detected libnx version: $LIBNX_VER"
+        
         make -C sys-patch -j$(nproc) dist && \
+
         VERSION=$(grep 'export VERSION := ' sys-patch/Makefile | cut -c 19-)
         TAGVERSION=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | grep "tag_name" | head -1 | cut -d '"' -f 4)
         echo "VERSION=${VERSION}" >> $GITHUB_ENV
         echo "TAGVERSION=${TAGVERSION}" >> $GITHUB_ENV
+        mv sys-patch/sys-patch.zip sys-patch/sys-patch-v$VERSION.zip
+        SHA256=$(sha256sum sys-patch/sys-patch-v$VERSION.zip)
+        echo "SHA256=${SHA256}" >> $GITHUB_ENV
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         include-hidden-files: true
         overwrite: true
-        name: sys-patch-${{ env.VERSION }}
+        name: sys-patch-v${{ env.VERSION }}
         path: sys-patch/out/
 
     - name: Fetch git cli and upload release
       env: 
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        echo "sys-patch/sys-patch-v${{ env.VERSION }}.zip"
+        echo "${{ env.SHA256 }}"
         if [ ${{ env.TAGVERSION }} = v${{ env.VERSION }} ];
         then echo "Tag version and makefile version are same, don't publish release, only artifact uploaded."
         else
@@ -47,6 +57,6 @@ jobs:
           chmod +x gh*/bin/gh && \
           cp gh*/bin/gh /bin/gh && \
           rm gh*.tar.gz && \
-          rm -rf gh*
-          gh release create v${{ env.VERSION }} sys-patch/sys-patch.zip --title "Sys-patch version ${{ env.VERSION }}" --repo github.com/$GITHUB_REPOSITORY
+          rm -rf gh* && \
+          gh release create v${{ env.VERSION }} sys-patch/sys-patch-v${{ env.VERSION }}.zip --title "Sys-patch version v${{ env.VERSION }}" --repo github.com/$GITHUB_REPOSITORY
         fi
