@@ -117,7 +117,8 @@ public:
         list->addItem(config_es1.create_list_item("es_1.0.0-8.1.1"));
         list->addItem(config_es2.create_list_item("es_9.0.0-11.0.1"));
         list->addItem(config_es3.create_list_item("es_12.0.0-18.1.0"));
-        list->addItem(config_es4.create_list_item("es_19.0.0+"));
+        list->addItem(config_es4.create_list_item("es_19.0.0-21.2.0"));
+        list->addItem(config_es5.create_list_item("es_22.0.0+"));
 
         list->addItem(new tsl::elm::CategoryHeader("OLSC - 010000000000003E"));
         list->addItem(config_olsc1.create_list_item("olsc_6.0.0-14.1.2"));
@@ -152,7 +153,8 @@ public:
     ConfigEntry config_es1{"es", "es_1.0.0-8.1.1", true};
     ConfigEntry config_es2{"es", "es_9.0.0-11.0.1", true};
     ConfigEntry config_es3{"es", "es_12.0.0-18.1.0", true};
-    ConfigEntry config_es4{"es", "es_19.0.0+", true};
+    ConfigEntry config_es4{"es", "es_19.0.0-21.2.0", true};
+    ConfigEntry config_es5{"es", "es_22.0.0+", true};
     ConfigEntry config_olsc1{"olsc", "olsc_6.0.0-14.1.2", true};
     ConfigEntry config_olsc2{"olsc", "olsc_15.0.0-18.1.0", true};
     ConfigEntry config_olsc3{"olsc", "olsc_19.0.0+", true};
