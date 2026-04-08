@@ -56,6 +56,7 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__
 
 CXXFLAGS	:= $(CFLAGS) -std=c++23 -fno-rtti -fno-exceptions
+CXXFLAGS += $(EXTRA_FLAGS)
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
@@ -180,14 +181,14 @@ else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif
 	@rm -rf out/
-	@rm -f sys-patch.zip
+	@rm -f sys-patch-sysmodule.zip
 
 #---------------------------------------------------------------------------------
 dist: all
 	@echo making dist ...
 
-	@rm -f sys-patch-no-overlay.zip
-	@cd out; zip -r ../sys-patch-no-overlay.zip ./*; cd ../
+	@rm -f sys-patch-sysmodule.zip
+	@cd out; zip -r ../sys-patch-sysmodule.zip ./*; cd ../
 #---------------------------------------------------------------------------------
 else
 .PHONY:	all
