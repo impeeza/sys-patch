@@ -105,6 +105,7 @@ struct Patterns {
     const u32 max_ams_ver{FW_VER_ANY}; // set to FW_VER_ANY to ignore
 
     PatchResult result{PatchResult::NOT_FOUND};
+    u64 logged_offset{};
 };
 
 struct PatchEntry {
@@ -269,6 +270,10 @@ constinit Patterns es_patterns[] = {
     { "es_22.0.0+", "0xA0630091....FE97A08300D1....FE97", 16, 0, es_cond, mov0_patch, mov0_applied, true, MAKEHOSVERSION(22,0,0), FW_VER_ANY },
 };
 
+constinit Patterns am_patterns[] = {
+    { "am_homebrew_fix_22.0.0+", "0x94......F9......F9........00410491", 17, 0, bl_cond, nop_patch, nop_applied, true, MAKEHOSVERSION(22,0,0), FW_VER_ANY },
+};
+
 constinit Patterns olsc_patterns[] = {
     { "olsc_6.0.0-14.1.2", "0x00..73....F9....4039", 42, 0, bl_cond, ret1_patch, ret1_applied, true, MAKEHOSVERSION(6,0,0), MAKEHOSVERSION(14,1,2) },
     { "olsc_15.0.0-18.1.0", "0x00..73....F9....4039", 38, 0, bl_cond, ret1_patch, ret1_applied, true, MAKEHOSVERSION(15,0,0), MAKEHOSVERSION(18,1,0) },
@@ -303,6 +308,7 @@ constinit PatchEntry patches[] = {
     { "olsc", 0x010000000000003E, olsc_patterns, MAKEHOSVERSION(6,0,0) },
     { "nifm", 0x010000000000000F, nifm_patterns },
     { "nim", 0x0100000000000025, nim_patterns },
+    { "am", 0x0100000000000023, am_patterns, MAKEHOSVERSION(22,0,0) },
 };
 
 struct EmummcPaths {
@@ -324,7 +330,7 @@ auto is_emummc() -> bool {
     return (paths.unk[0] != '\0') || (paths.nintendo[0] != '\0');
 }
 
-void patcher(Handle handle, const u8* data, size_t data_size, u64 addr, std::span<Patterns> patterns) {
+void patcher(Handle handle, const u8* data, size_t data_size, u64 addr, u64 base_addr, std::span<Patterns> patterns) {
     for (auto& p : patterns) {
         // skip if disabled (controller by config.ini)
         if (p.result == PatchResult::DISABLED) {
@@ -368,10 +374,17 @@ void patcher(Handle handle, const u8* data, size_t data_size, u64 addr, std::spa
                 const auto inst_offset = i + p.inst_offset;
                 std::memcpy(&inst, data + inst_offset, sizeof(inst));
 
-                // check if the instruction is the one that we want
-                if (p.cond(inst)) {
+                const auto patch_offset = addr + inst_offset + p.patch_offset;
+                const auto logged_offset = base_addr && patch_offset >= base_addr ? patch_offset - base_addr : patch_offset;
+
+                // prefer detecting an already-present patch before deciding to write one
+                if (p.applied(data + inst_offset + p.patch_offset, inst)) {
+                    // patch already applied by sigpatches / IPS
+                    p.result = PatchResult::PATCHED_FILE;
+                    p.logged_offset = logged_offset;
+                    break;
+                } else if (p.cond(inst)) {
                     const auto patch_data = p.patch(inst);
-                    const auto patch_offset = addr + inst_offset + p.patch_offset;
 
                     // todo: log failed writes, although this should in theory never fail
                     if (R_FAILED(svcWriteDebugProcessMemory(handle, &patch_data, patch_offset, patch_data.size))) {
@@ -379,11 +392,7 @@ void patcher(Handle handle, const u8* data, size_t data_size, u64 addr, std::spa
                     } else {
                         p.result = PatchResult::PATCHED_SYSPATCH;
                     }
-                    // move onto next pattern
-                    break;
-                } else if (p.applied(data + inst_offset + p.patch_offset, inst)) {
-                    // patch already applied by sigpatches
-                    p.result = PatchResult::PATCHED_FILE;
+                    p.logged_offset = logged_offset;
                     break;
                 }
             }
@@ -422,6 +431,7 @@ auto apply_patch(PatchEntry& patch) -> bool {
             patch.title_id == event_info.info.create_process.program_id) {
             MemoryInfo mem_info{};
             u64 addr{};
+            u64 base_addr{};
             u32 page_info{};
 
             for (;;) {
@@ -439,12 +449,16 @@ auto apply_patch(PatchEntry& patch) -> bool {
                     continue;
                 }
 
+                if (!base_addr) {
+                    base_addr = mem_info.addr;
+                }
+
                 for (u64 sz = 0; sz < mem_info.size; sz += READ_BUFFER_SIZE - overlap_size) {
                     const auto actual_size = std::min(READ_BUFFER_SIZE, mem_info.size - sz);
                     if (R_FAILED(svcReadDebugProcessMemory(buffer + overlap_size, handle, mem_info.addr + sz, actual_size))) {
                         break;
                     } else {
-                        patcher(handle, buffer, actual_size + overlap_size, mem_info.addr + sz - overlap_size, patch.patterns);
+                        patcher(handle, buffer, actual_size + overlap_size, mem_info.addr + sz - overlap_size, base_addr, patch.patterns);
                         if (actual_size >= overlap_size) {
                             memcpy(buffer, buffer + READ_BUFFER_SIZE, overlap_size);
                             std::memset(buffer + overlap_size, 0, READ_BUFFER_SIZE);
@@ -504,6 +518,39 @@ auto patch_result_to_str(PatchResult result) -> const char* {
     }
 
     std::unreachable();
+}
+
+void offset_to_str(char* s, u64 offset) {
+    *s++ = '0';
+    *s++ = 'x';
+
+    bool wrote_digit = false;
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        const auto nibble = static_cast<u8>((offset >> shift) & 0xF);
+        if (!wrote_digit && nibble == 0 && shift != 0) {
+            continue;
+        }
+
+        wrote_digit = true;
+        *s++ = nibble < 10 ? static_cast<char>('0' + nibble) : static_cast<char>('A' + nibble - 10);
+    }
+}
+
+void patch_result_to_log_str(char* s, PatchResult result, u64 offset) {
+    const auto* result_str = patch_result_to_str(result);
+    while (*result_str != '\0') {
+        *s++ = *result_str++;
+    }
+
+    if (offset != 0) {
+        *s++ = ' ';
+        *s++ = '(';
+        offset_to_str(s, offset);
+        while (*s != '\0') {
+            s++;
+        }
+        *s++ = ')';
+    }
 }
 
 void num_2_str(char*& s, u16 num) {
@@ -638,7 +685,9 @@ int main(int argc, char* argv[]) {
                 if (!enable_patching) {
                     p.result = PatchResult::SKIPPED;
                 }
-                ini_puts(patch.name, p.patch_name, patch_result_to_str(p.result), log_path);
+                char log_value[96]{};
+                patch_result_to_log_str(log_value, p.result, p.logged_offset);
+                ini_puts(patch.name, p.patch_name, log_value, log_path);
             }
         }
 
