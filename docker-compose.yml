@@ -1,0 +1,6 @@
+services:
+  syspatch:
+    build:
+      context: .
+    volumes:
+      - .:/workspace

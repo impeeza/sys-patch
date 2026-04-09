@@ -39,17 +39,44 @@ The overlay can be used to change the config options and to see what patches are
 
 ## Building
 
-### prerequisites
-- Install [devkitpro](https://devkitpro.org/wiki/Getting_Started)
-- Run the following:
-  ```sh
-  git clone --recurse-submodules https://github.com/ITotalJustice/sys-patch.git
-  cd ./sys-patch
-  make
-  ```
+### Clone with submodules
 
-The output of `out/` can be copied to your SD card.
-To activate the sys-module, reboot your switch, or, use [sysmodules overlay](https://github.com/WerWolv/ovl-sysmodules/releases/latest) with the accompanying overlay to activate it.
+Clone this repository (with submodules), and move into the project directory.
+
+```sh
+git clone --recurse-submodules https://github.com/ITotalJustice/sys-patch.git
+cd ./sys-patch
+```
+
+If you cloned, but forgot the submodules, you can install them after-the-fact.
+
+```sh
+# git clone --recurse-submodules https://github.com/ITotalJustice/sys-patch.git
+# cd ./sys-patch
+
+git submodule init
+git submodule update
+```
+
+### With Docker
+
+1. Install [Docker Desktop](https://docker.com/desktop) (for Mac/Windows).
+1. Run:
+
+    ```sh
+    docker compose up --build
+    ```
+
+### Without Docker
+
+1. Install [devkitARM](https://devkitpro.org/wiki/Getting_Started).
+2. Run:
+
+    ```sh
+    make
+    ```
+
+The output of `out/` can be copied to the root of your SD card (DO NOT overwrite — merge the changes into the existing directory structure). To activate the sys-module, reboot your switch, or, use [sysmodules overlay](https://github.com/WerWolv/ovl-sysmodules/releases/latest) with the accompanying overlay to activate it.
 
 ---
 
@@ -60,7 +87,7 @@ Here's a quick run down of what's being patched:
 - **fs** and **es** need new patches after every new firmware version.
 - **ldr** needs new patches after every new [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere/) release.
 - **nifm** ctest patch allows the device to connect to a network without needing to make a connection to a server
-- **nim** patches to the ssl function call within nim that queries "https://api.hac.%.ctest.srv.nintendo.net/v1/time", and crashes the console if console ssl certificate is not intact. This patch instead makes the console not crash.
+- **nim** patches to the ssl function call within nim that queries `https://api.hac.%.ctest.srv.nintendo.net/v1/time`, and crashes the console if console ssl certificate is not intact. This patch instead makes the console not crash.
 
 The patches are applied on boot. Once done, the sys-module stops running.
 The memory footprint *(16kib)* and the binary size *(~50kib)* are both very small.
