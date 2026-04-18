@@ -432,8 +432,10 @@ auto apply_patch(PatchEntry& patch) -> bool {
             MemoryInfo mem_info{};
             u64 addr{};
             u64 base_addr{};
+            u64 base_size{};
             u32 page_info{};
 
+            // Log offsets relative to the main module rather than the first executable region.
             for (;;) {
                 if (R_FAILED(svcQueryDebugProcessMemory(&mem_info, &page_info, handle, addr))) {
                     break;
@@ -449,8 +451,28 @@ auto apply_patch(PatchEntry& patch) -> bool {
                     continue;
                 }
 
-                if (!base_addr) {
+                if (mem_info.size > base_size) {
                     base_addr = mem_info.addr;
+                    base_size = mem_info.size;
+                }
+            }
+
+            addr = 0;
+            std::memset(buffer, 0, sizeof(buffer));
+
+            for (;;) {
+                if (R_FAILED(svcQueryDebugProcessMemory(&mem_info, &page_info, handle, addr))) {
+                    break;
+                }
+                addr = mem_info.addr + mem_info.size;
+
+                // if addr=0 then we hit the reserved memory section
+                if (!addr) {
+                    break;
+                }
+                // skip memory that we don't want
+                if (!mem_info.size || (mem_info.perm & Perm_Rx) != Perm_Rx || ((mem_info.type & 0xFF) != MemType_CodeStatic)) {
+                    continue;
                 }
 
                 for (u64 sz = 0; sz < mem_info.size; sz += READ_BUFFER_SIZE - overlap_size) {
