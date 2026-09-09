@@ -4,6 +4,7 @@ on:
   workflow_call:
   workflow_dispatch:
   push:
+  pull_request:
 
 jobs:
   build:
@@ -20,43 +21,39 @@ jobs:
 
     - name: Build sys-patch
       run: |
-
         LIBNX_VER=$(dkp-pacman -Q libnx | cut -d' ' -f2 | cut -d- -f1)
         echo "Detected libnx version: $LIBNX_VER"
-        
-        make -C sys-patch -j$(nproc) dist && \
+
+        make -C sys-patch -j$(nproc) dist
 
         VERSION=$(grep 'export VERSION := ' sys-patch/Makefile | cut -c 19-)
         TAGVERSION=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest | grep "tag_name" | head -1 | cut -d '"' -f 4)
-        echo "VERSION=${VERSION}" >> $GITHUB_ENV
-        echo "TAGVERSION=${TAGVERSION}" >> $GITHUB_ENV
         mv sys-patch/sys-patch.zip sys-patch/sys-patch-v$VERSION.zip
         SHA256=$(sha256sum sys-patch/sys-patch-v$VERSION.zip)
+
+        ZIP_PATH="sys-patch/sys-patch-v${VERSION}.zip"
+        ARTIFACT_NAME=$(basename "$ZIP_PATH" .zip)
+
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        echo "TAGVERSION=${TAGVERSION}" >> $GITHUB_ENV
         echo "SHA256=${SHA256}" >> $GITHUB_ENV
+        echo "ZIP_PATH=${ZIP_PATH}" >> $GITHUB_ENV
+        echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
 
     - name: Upload artifact
       uses: actions/upload-artifact@v7
       with:
         include-hidden-files: true
         overwrite: true
-        name: sys-patch-v${{ env.VERSION }}
+        name: ${{ env.ARTIFACT_NAME }}
         path: sys-patch/out/
 
-    - name: Fetch git cli and upload release
-      env: 
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "sys-patch/sys-patch-v${{ env.VERSION }}.zip"
-        echo "${{ env.SHA256 }}"
-        if [ ${{ env.TAGVERSION }} = v${{ env.VERSION }} ];
-        then echo "Tag version and makefile version are same, don't publish release, only artifact uploaded."
-        else
-          wget -q $(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep "browser_download_url" | grep "linux_amd64.tar.gz" | head -1 | cut -d '"' -f 4) && \
-          tar -xzf gh*.tar.gz && \
-          chmod +x gh*/bin/gh && \
-          chmod +x gh*/bin/gh && \
-          cp gh*/bin/gh /bin/gh && \
-          rm gh*.tar.gz && \
-          rm -rf gh* && \
-          gh release create v${{ env.VERSION }} sys-patch/sys-patch-v${{ env.VERSION }}.zip --title "Sys-patch version v${{ env.VERSION }}" --repo github.com/$GITHUB_REPOSITORY
-        fi
+    - name: Upload release
+      uses: softprops/action-gh-release@v3
+      if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && env.TAGVERSION != format('v{0}', env.VERSION)
+      with:
+        tag_name: v${{ env.VERSION }}
+        name: Sys-patch version v${{ env.VERSION }}
+        files: ${{ env.ZIP_PATH }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
