@@ -285,7 +285,7 @@ constinit Patterns es_patterns[] = {
 };
 
 constinit Patterns am_patterns[] = {
-    { "am_homebrew_fix_22.0.0+", "0x682646391F0500716100005460420691794DFF97", 16, 0, bl_cond, nop_patch, nop_applied, true, 0, MAKEHOSVERSION(22,0,0), FW_VER_ANY },
+    { "am_homebrew_fix_22.0.0+", "0x682646391F0500716100005460420691794DFF97", 16, 0, bl_cond, nop_patch, nop_applied, true, 0, MAKEHOSVERSION(22,0,0), MAKEHOSVERSION(22,0,0) },
 };
 
 constinit Patterns olsc_patterns[] = {
