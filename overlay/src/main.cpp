@@ -245,7 +245,7 @@ public:
     ConfigEntry config_es3{"es", "es_12.0.0-18.1.0", true};
     ConfigEntry config_es4{"es", "es_19.0.0-21.2.0", true};
     ConfigEntry config_es5{"es", "es_22.0.0+", true};
-    ConfigEntry config_am1{"am", "am_homebrew_fix_22.0.0+ ", true};
+    ConfigEntry config_am1{"am", "am_homebrew_fix_22.0.0+", true};
     ConfigEntry config_olsc1{"olsc", "olsc_6.0.0-14.1.2", true};
     ConfigEntry config_olsc2{"olsc", "olsc_15.0.0-18.1.0", true};
     ConfigEntry config_olsc3{"olsc", "olsc_19.0.0+", true};
