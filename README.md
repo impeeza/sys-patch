@@ -61,6 +61,7 @@ Here's a quick run down of what's being patched:
 - **ldr** needs new patches after every new [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere/) release.
 - **nifm** ctest patch allows the device to connect to a network without needing to make a connection to a server
 - **nim** patches to the ssl function call within nim that queries "https://api.hac.%.ctest.srv.nintendo.net/v1/time", and crashes the console if console ssl certificate is not intact. This patch instead makes the console not crash.
+- **fs** `gc_rng_const_0x11` (off by default) makes FS's game-card random generator fill its buffer with `0x11` instead of random bytes, so a game-card emulator knows FS's half of the session key. It weakens every random number FS generates, so only enable it for game-card emulation.
 
 The patches are applied on boot. Once done, the sys-module stops running.
 The memory footprint *(16kib)* and the binary size *(~50kib)* are both very small.
