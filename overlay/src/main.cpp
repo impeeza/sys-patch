@@ -188,6 +188,7 @@ public:
         list->addItem(config_noncasigchk3.create_list_item("noncasigchk_17.0.0+"));
         list->addItem(config_nocntchk1.create_list_item("nocntchk_1.0.0-18.1.0"));
         list->addItem(config_nocntchk2.create_list_item("nocntchk_19.0.0+"));
+        list->addItem(config_gc_rng.create_list_item("gc_rng_const_0x11"));
 
         list->addItem(new tsl::elm::CategoryHeader("LDR - 0100000000000001"));
         list->addItem(config_noacidsigchk4.create_list_item("noacidsigchk_10.0.0+"));
@@ -236,6 +237,7 @@ public:
     ConfigEntry config_noncasigchk3{"fs", "noncasigchk_17.0.0+", true};
     ConfigEntry config_nocntchk1{"fs", "nocntchk_1.0.0-18.1.0", true};
     ConfigEntry config_nocntchk2{"fs", "nocntchk_19.0.0+", true};
+    ConfigEntry config_gc_rng{"fs", "gc_rng_const_0x11", false};
     ConfigEntry config_noacidsigchk4{"ldr", "noacidsigchk_10.0.0+", true};
     ConfigEntry config_no_erpt{"erpt", "no_erpt", true};
     ConfigEntry config_es1{"es", "es_1.0.0-8.1.1", true};
@@ -243,7 +245,7 @@ public:
     ConfigEntry config_es3{"es", "es_12.0.0-18.1.0", true};
     ConfigEntry config_es4{"es", "es_19.0.0-21.2.0", true};
     ConfigEntry config_es5{"es", "es_22.0.0+", true};
-    ConfigEntry config_am1{"am", "am_homebrew_fix_22.0.0+ ", true};
+    ConfigEntry config_am1{"am", "am_homebrew_fix_22.0.0+", true};
     ConfigEntry config_olsc1{"olsc", "olsc_6.0.0-14.1.2", true};
     ConfigEntry config_olsc2{"olsc", "olsc_15.0.0-18.1.0", true};
     ConfigEntry config_olsc3{"olsc", "olsc_19.0.0+", true};

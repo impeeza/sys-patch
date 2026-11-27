@@ -193,6 +193,18 @@ constexpr PatchData ctest_patch_data{ "0x00309AD2001EA1F2610100D4E0031FAAC0035FD
 constexpr PatchData strb0_patch_data{ "0x7F020039"};
 //strb wzr, [x19]
 
+// FS's game-card random wrapper.
+//   x0 = unused (only shifted, never read), x1 = buffer, x2 = size
+//   -> 0 on success, 0xD8020014 if the underlying csrng client call failed.
+// The patch makes it fill the buffer with 0x11 and return 0, so a game-card
+// emulator knows FS's half of the session key without holding any private key.
+//
+// The patch replaces the call plus the result conversion (20 bytes at the `bl`)
+// with the same fill loop; the prologue and the `ldp x29, x30 / ret` epilogue of
+// the original function are left in place. The wildcarded part of the pattern is
+// exactly the bytes this patch overwrites.
+constexpr PatchData gc_rng_fill_patch_data{ "0x2802805208140038210400F1C1FFFF54E0031F2A" };
+
 constexpr auto ret0_patch(u32 inst) -> PatchData { return ret0_patch_data; }
 constexpr auto ret1_patch(u32 inst) -> PatchData { return ret1_patch_data; }
 constexpr auto mov0_ret_patch(u32 inst) -> PatchData { return mov0_ret_patch_data; }
@@ -202,6 +214,7 @@ constexpr auto mov2_patch(u32 inst) -> PatchData { return mov2_patch_data; }
 constexpr auto cmp_patch(u32 inst) -> PatchData { return cmp_patch_data; }
 constexpr auto ctest_patch(u32 inst) -> PatchData { return ctest_patch_data; }
 constexpr auto strb0_patch(u32 inst) -> PatchData { return strb0_patch_data; }
+constexpr auto gc_rng_fill_patch(u32 inst) -> PatchData { return gc_rng_fill_patch_data; }
 
 constexpr auto ret0_applied(const u8* data, u32 inst) -> bool {
     return ret0_patch(inst).cmp(data);
@@ -239,6 +252,10 @@ constexpr auto strb0_applied(const u8* data, u32 inst) -> bool {
     return strb0_patch(inst).cmp(data);
 }
 
+constexpr auto gc_rng_fill_applied(const u8* data, u32 inst) -> bool {
+    return gc_rng_fill_patch(inst).cmp(data);
+}
+
 // patterns should be optimized in such a manner that they yield only one result, unless match_index selects a specific result.
 // patterns might yield results for more firmware versions, but if it yields more than one result (per firmware version), it should be condensed to near similar versions instead which only yields one result.
 // a pattern should not contain the bytes being patched, they should be wildcarded.
@@ -266,6 +283,12 @@ constinit Patterns fs_patterns[] = {
     { "noncasigchk_17.0.0+", "0x0694....00..42..0091", -18, 0, tbz_cond, nop_patch, nop_applied, true, 0, MAKEHOSVERSION(17,0,0), FW_VER_ANY },
     { "nocntchk_1.0.0-18.1.0", "0x40F9........081C00121F05", 2, 0, bl_cond, ret0_patch, ret0_applied, true, 0, MAKEHOSVERSION(1,0,0), MAKEHOSVERSION(18,1,0) },
     { "nocntchk_19.0.0+", "0x40F9............40B9091C", 2, 0, bl_cond, ret0_patch, ret0_applied, true, 0, MAKEHOSVERSION(19,0,0), FW_VER_ANY },
+    // FS's game-card random wrapper. One pattern covers 3.0.2, 4.1.0, 5.1.0 and
+    // 23.5.0 -- the compiler changes only reorder the result conversion, which
+    // the patch overwrites anyway. Off by default: it weakens every random FS
+    // generates, and is only needed for game-card emulation.
+    // Enable with [fs] gc_rng_const_0x11=1.
+    { "gc_rng_const_0x11", "0xFD7BBFA9FD030091E00301AAE10302AA........................................FD7BC1A8C0035FD6", 16, 0, bl_cond, gc_rng_fill_patch, gc_rng_fill_applied, false, 0 },
 };
 
 constinit Patterns ldr_patterns[] = {
